@@ -28,9 +28,13 @@ add_library(minglish_core STATIC
     src/ui/status_pill.cpp
     src/ui/font_switcher_dialog.cpp
     src/ui/cheat_sheet_dialog.cpp
+    src/ui/tray_icon.cpp
 )
 target_include_directories(minglish_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(minglish_core PUBLIC user32 gdi32)
+target_link_libraries(minglish_core PUBLIC user32 gdi32 shell32)
+
+add_executable(ModernISM WIN32 src/main.cpp)
+target_link_libraries(ModernISM PRIVATE minglish_core)
 
 enable_testing()
 add_subdirectory(tests)
