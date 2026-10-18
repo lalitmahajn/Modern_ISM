@@ -3,6 +3,7 @@ add_executable(minglish_tests
     test_minglish_keymap.cpp
     test_word_buffer.cpp
     test_font_profile.cpp
+    test_visual_reorderer.cpp
 )
 
 target_include_directories(minglish_tests PRIVATE
