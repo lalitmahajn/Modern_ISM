@@ -26,6 +26,8 @@ add_library(minglish_core STATIC
     src/hook/keyboard_hook.cpp
     src/hook/mouse_hook.cpp
     src/ui/status_pill.cpp
+    src/ui/font_switcher_dialog.cpp
+    src/ui/cheat_sheet_dialog.cpp
 )
 target_include_directories(minglish_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(minglish_core PUBLIC user32 gdi32)
