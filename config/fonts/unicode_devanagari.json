@@ -1,0 +1,20 @@
+{
+  "profile_id": "unicode_devanagari",
+  "name": "Unicode Standard Devanagari",
+  "encoding": "utf16",
+  "features": {
+    "chhoti_ee_pre_base": false,
+    "reph_post_base": false,
+    "has_half_consonants": false
+  },
+  "glyphs": {
+    "chhoti_ee": "ि",
+    "reph": "र्",
+    "virama": "्",
+    "rakar": "्र"
+  },
+  "direct_map": {},
+  "half_consonants": {},
+  "ligatures": {},
+  "contextual_rules": []
+}

@@ -18,6 +18,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_library(minglish_core STATIC
     src/engine/minglish_keymap.cpp
     src/engine/word_buffer.cpp
+    src/engine/font_profile.cpp
 )
 target_include_directories(minglish_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

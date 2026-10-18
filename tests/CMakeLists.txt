@@ -2,6 +2,7 @@ add_executable(minglish_tests
     test_main.cpp
     test_minglish_keymap.cpp
     test_word_buffer.cpp
+    test_font_profile.cpp
 )
 
 target_include_directories(minglish_tests PRIVATE
@@ -12,3 +13,4 @@ target_include_directories(minglish_tests PRIVATE
 target_link_libraries(minglish_tests PRIVATE minglish_core)
 
 add_test(NAME minglish_tests COMMAND minglish_tests)
+set_tests_properties(minglish_tests PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
