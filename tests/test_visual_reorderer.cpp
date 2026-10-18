@@ -74,3 +74,26 @@ TEST_CASE(TestKrutiDevRakar) {
     return true;
 }
 
+TEST_CASE(TestKrutiDevRuAndStemlessRakar) {
+    auto kruti = minglish::LoadFontProfileFromFile("config/fonts/kruti_dev_010.json");
+
+    // रुपये -> #i;s (# for composite रु)
+    std::string s1 = minglish::TranspileToTargetFont(u"रुपये", kruti);
+    ASSERT_EQ(s1, "#i;s");
+
+    // रूप -> jQi (jQ for composite रू, i for प)
+    std::string s2 = minglish::TranspileToTargetFont(u"रूप", kruti);
+    ASSERT_EQ(s2, "jQi");
+
+    // ट्रक -> Vªd (V for ट, ª for stemless rakar, d for क)
+    std::string s3 = minglish::TranspileToTargetFont(u"ट्रक", kruti);
+    ASSERT_EQ(s3, "Vªd");
+
+    // १२३ -> 123 in Kruti Dev
+    std::string s4 = minglish::TranspileToTargetFont(u"१२३", kruti);
+    ASSERT_EQ(s4, "123");
+
+    return true;
+}
+
+

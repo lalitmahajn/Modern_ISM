@@ -6,6 +6,7 @@ add_executable(minglish_tests
     test_visual_reorderer.cpp
     test_differential_injector.cpp
     test_transpiler_engine.cpp
+    test_text_injector.cpp
 )
 
 target_include_directories(minglish_tests PRIVATE

@@ -184,6 +184,7 @@ FontProfile LoadFontProfileFromJson(std::string_view jsonContent) {
                         else if (gKey == "reph") profile.rephGlyph = gVal;
                         else if (gKey == "virama") profile.viramaGlyph = gVal;
                         else if (gKey == "rakar") profile.rakarGlyph = gVal;
+                        else if (gKey == "rakar_stemless") profile.rakarStemlessGlyph = gVal;
                     }
                 }
             }

@@ -91,6 +91,10 @@ std::vector<AksharaCluster> ParseAksharas(const std::u16string& text) {
                  (text[i] == 0x0936 && text[i + 2] == 0x0930))) {
                 cluster.baseConsonant = text.substr(i, 3);
                 i += 3;
+            } else if (i + 1 < len && text[i] == 0x0930 && (text[i + 1] == 0x0941 || text[i + 1] == 0x0942)) {
+                // Special composite रु (U+0930 + U+0941) or रू (U+0930 + U+0942)
+                cluster.baseConsonant = text.substr(i, 2);
+                i += 2;
             } else if (i + 2 < len && text[i + 1] == 0x094D && text[i + 2] == 0x0930) {
                 // Rakar: consonant + virama + र
                 cluster.baseConsonant = text.substr(i, 1);
@@ -177,9 +181,15 @@ std::string TranspileToTargetFont(const std::u16string& unicodeWord, const FontP
                 }
             }
 
-            // Append Rakar glyph if applicable
+            // Append Rakar glyph if applicable (distinguishing stemless rounded consonants)
             if (cluster.hasRakar) {
-                result += profile.rakarGlyph;
+                char16_t baseC = cluster.baseConsonant[0];
+                bool isStemless = (baseC == 0x091F || baseC == 0x0920 || baseC == 0x0921 || baseC == 0x0922 || baseC == 0x091B);
+                if (isStemless && !profile.rakarStemlessGlyph.empty()) {
+                    result += profile.rakarStemlessGlyph;
+                } else {
+                    result += profile.rakarGlyph;
+                }
             }
         }
 

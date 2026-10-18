@@ -20,6 +20,7 @@ struct FontProfile {
     std::string rephGlyph;
     std::string viramaGlyph;
     std::string rakarGlyph;
+    std::string rakarStemlessGlyph;
     std::unordered_map<std::u16string, std::string> directMap;
     std::unordered_map<std::u16string, std::string> halfConsonants;
     std::unordered_map<std::u16string, std::string> ligatures;

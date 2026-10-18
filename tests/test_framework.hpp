@@ -25,6 +25,8 @@ inline std::vector<TestCase>& GetTestCases() {
 inline std::string ToString(const std::string& s) { return s; }
 inline std::string ToString(std::string_view s) { return std::string(s); }
 inline std::string ToString(int v) { return std::to_string(v); }
+inline std::string ToString(unsigned long v) { return std::to_string(v); }
+inline std::string ToString(unsigned short v) { return std::to_string(v); }
 inline std::string ToString(size_t v) { return std::to_string(v); }
 inline std::string ToString(bool v) { return v ? "true" : "false"; }
 inline std::string ToString(const std::u16string& u16) {

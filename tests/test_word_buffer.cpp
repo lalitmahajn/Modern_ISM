@@ -111,3 +111,64 @@ TEST_CASE(TestInherentConsonantWithHAndRu) {
     return true;
 }
 
+TEST_CASE(TestDevanagariNumbers) {
+    minglish::WordBuffer buf;
+    buf.PushKey('1');
+    buf.PushKey('2');
+    buf.PushKey('3');
+    ASSERT_EQ(buf.ToUnicode(), u"१२३");
+    return true;
+}
+
+TEST_CASE(TestEyelashRa) {
+    minglish::WordBuffer buf;
+    // kurhad -> कुऱ्हाड
+    buf.PushKey('k');
+    buf.PushKey('u');
+    buf.PushKey('r');
+    buf.PushKey('h');
+    buf.PushKey('a');
+    buf.PushKey('a');
+    buf.PushKey('D');
+    ASSERT_EQ(buf.ToUnicode(), u"कुऱ्हाड");
+
+    // varyacha -> वाऱ्याचा
+    buf.Clear();
+    buf.PushKey('v');
+    buf.PushKey('a');
+    buf.PushKey('a');
+    buf.PushKey('r');
+    buf.PushKey('y');
+    buf.PushKey('a');
+    buf.PushKey('a');
+    buf.PushKey('c');
+    buf.PushKey('h');
+    buf.PushKey('a');
+    ASSERT_EQ(buf.ToUnicode(), u"वाऱ्याच");
+
+    return true;
+}
+
+TEST_CASE(TestDedicatedRuAndRoo) {
+    minglish::WordBuffer buf;
+    // r-u-p-a-y-e -> रुपये
+    buf.PushKey('r');
+    buf.PushKey('u');
+    buf.PushKey('p');
+    buf.PushKey('a');
+    buf.PushKey('y');
+    buf.PushKey('e');
+    ASSERT_EQ(buf.ToUnicode(), u"रुपये");
+
+    // r-o-o-p -> रूप
+    buf.Clear();
+    buf.PushKey('r');
+    buf.PushKey('o');
+    buf.PushKey('o');
+    buf.PushKey('p');
+    ASSERT_EQ(buf.ToUnicode(), u"रूप");
+
+    return true;
+}
+
+

@@ -28,6 +28,18 @@ const std::unordered_map<std::string, KeyMapping> g_keymap = {
     {"c",   {u"ॲ", u"ॅ",   KeyCategory::Vowel}},
     {"O",   {u"ऑ", u"ॉ",   KeyCategory::Vowel}},
 
+    // Numbers
+    {"0",   {u"०", u"०",   KeyCategory::Modifier}},
+    {"1",   {u"१", u"१",   KeyCategory::Modifier}},
+    {"2",   {u"२", u"२",   KeyCategory::Modifier}},
+    {"3",   {u"३", u"३",   KeyCategory::Modifier}},
+    {"4",   {u"४", u"४",   KeyCategory::Modifier}},
+    {"5",   {u"५", u"५",   KeyCategory::Modifier}},
+    {"6",   {u"६", u"६",   KeyCategory::Modifier}},
+    {"7",   {u"७", u"७",   KeyCategory::Modifier}},
+    {"8",   {u"८", u"८",   KeyCategory::Modifier}},
+    {"9",   {u"९", u"९",   KeyCategory::Modifier}},
+
     // Modifiers
     {"M",   {u"अं", u"ं",  KeyCategory::Modifier}},
     {"H",   {u"अः", u"ः",  KeyCategory::Modifier}},
@@ -73,6 +85,9 @@ const std::unordered_map<std::string, KeyMapping> g_keymap = {
 
     {"y",   {u"य", u"य्",  KeyCategory::Consonant}},
     {"r",   {u"र", u"र्",  KeyCategory::Consonant}},
+    {"rh",  {u"ऱ्ह", u"ऱ्ह्", KeyCategory::Consonant}},
+    {"ry",  {u"ऱ्य", u"ऱ्य्", KeyCategory::Consonant}},
+    {"rY",  {u"ऱ्य", u"ऱ्य्", KeyCategory::Consonant}},
     {"l",   {u"ल", u"ल्",  KeyCategory::Consonant}},
     {"v",   {u"व", u"व्",  KeyCategory::Consonant}},
     {"w",   {u"व", u"व्",  KeyCategory::Consonant}},
