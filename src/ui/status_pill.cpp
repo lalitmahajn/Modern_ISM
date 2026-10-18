@@ -4,6 +4,15 @@ namespace minglish {
 
 namespace {
 const wchar_t* STATUS_PILL_CLASS = L"ModernISM_StatusPill";
+
+std::wstring Utf8ToWide(const std::string& utf8) {
+    if (utf8.empty()) return L"";
+    int needed = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), static_cast<int>(utf8.size()), nullptr, 0);
+    if (needed <= 0) return L"";
+    std::wstring out(needed, 0);
+    MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), static_cast<int>(utf8.size()), &out[0], needed);
+    return out;
+}
 }
 
 StatusPill::StatusPill() = default;
@@ -37,7 +46,7 @@ bool StatusPill::Create(HINSTANCE hInstance) {
     int y = workArea.bottom - m_height - 24;
 
     m_hwnd = CreateWindowExW(
-        WS_EX_TOPMOST | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW,
+        WS_EX_TOPMOST | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW | WS_EX_LAYERED,
         STATUS_PILL_CLASS,
         L"ModernISM Status",
         WS_POPUP,
@@ -46,6 +55,7 @@ bool StatusPill::Create(HINSTANCE hInstance) {
     );
 
     if (m_hwnd) {
+        SetLayeredWindowAttributes(m_hwnd, 0, 255, LWA_ALPHA);
         // Set rounded window region for native pill look
         HRGN hRgn = CreateRoundRectRgn(0, 0, m_width + 1, m_height + 1, 16, 16);
         SetWindowRgn(m_hwnd, hRgn, TRUE);
@@ -117,9 +127,11 @@ void StatusPill::OnPaint(HWND hwnd) {
     COLORREF dotColor = m_engineOn ? RGB(46, 204, 113) : RGB(128, 132, 142);
     HBRUSH dotBrush = CreateSolidBrush(dotColor);
     HPEN dotPen = CreatePen(PS_SOLID, 1, dotColor);
-    SelectObject(memDC, dotBrush);
-    SelectObject(memDC, dotPen);
+    HGDIOBJ prevBrush = SelectObject(memDC, dotBrush);
+    HGDIOBJ prevPen = SelectObject(memDC, dotPen);
     Ellipse(memDC, 14, 14, 26, 26);
+    SelectObject(memDC, prevBrush);
+    SelectObject(memDC, prevPen);
     DeleteObject(dotBrush);
     DeleteObject(dotPen);
 
@@ -135,12 +147,9 @@ void StatusPill::OnPaint(HWND hwnd) {
     RECT textRect = {34, 0, m_width - 12, m_height};
     std::wstring displayMsg;
     if (m_engineOn) {
-        displayMsg = L"Minglish: ON  |  ";
-        displayMsg.append(m_fontName.begin(), m_fontName.end());
+        displayMsg = L"Minglish: ON  |  " + Utf8ToWide(m_fontName);
         if (!m_previewText.empty()) {
-            displayMsg += L" (";
-            displayMsg.append(m_previewText.begin(), m_previewText.end());
-            displayMsg += L")";
+            displayMsg += L" (" + Utf8ToWide(m_previewText) + L")";
         }
         SetTextColor(memDC, RGB(245, 245, 247));
     } else {

@@ -56,14 +56,17 @@ void CheatSheetDialog::Show(HINSTANCE hInstance, HWND hTargetApp) {
     s_instance->m_hInstance = hInstance;
     s_instance->m_hTargetApp = hTargetApp;
 
-    WNDCLASSEXW wc = {sizeof(WNDCLASSEXW)};
-    wc.lpfnWndProc = WndProc;
-    wc.hInstance = hInstance;
-    wc.lpszClassName = CHEAT_SHEET_CLASS;
-    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-    wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
-
-    RegisterClassExW(&wc);
+    static bool s_classRegistered = false;
+    if (!s_classRegistered) {
+        WNDCLASSEXW wc = {sizeof(WNDCLASSEXW)};
+        wc.lpfnWndProc = WndProc;
+        wc.hInstance = hInstance;
+        wc.lpszClassName = CHEAT_SHEET_CLASS;
+        wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+        wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+        RegisterClassExW(&wc);
+        s_classRegistered = true;
+    }
 
     int width = 560;
     int height = 500;
@@ -86,26 +89,40 @@ void CheatSheetDialog::Show(HINSTANCE hInstance, HWND hTargetApp) {
     }
 }
 
+LRESULT CALLBACK CheatSheetDialog::EditWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    if (s_instance) {
+        if (msg == WM_KEYDOWN && wParam == VK_ESCAPE) {
+            DestroyWindow(s_instance->m_hwnd);
+            return 0;
+        }
+        return CallWindowProcW(s_instance->m_origEditProc, hwnd, msg, wParam, lParam);
+    }
+    return DefWindowProcW(hwnd, msg, wParam, lParam);
+}
+
 LRESULT CALLBACK CheatSheetDialog::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     if (msg == WM_CREATE) {
         auto* cs = reinterpret_cast<CREATESTRUCTW*>(lParam);
         auto* self = reinterpret_cast<CheatSheetDialog*>(cs->lpCreateParams);
         SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(self));
 
-        HFONT hFont = CreateFontW(
+        self->m_hFont = CreateFontW(
             -13, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
             DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
             CLEARTYPE_QUALITY, FIXED_PITCH | FF_MODERN, L"Consolas"
         );
 
-        HWND hEdit = CreateWindowExW(
+        self->m_hEdit = CreateWindowExW(
             0, L"EDIT", CHEAT_SHEET_TEXT,
             WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL,
             12, 12, 520, 436,
             hwnd, nullptr, self->m_hInstance, nullptr
         );
-        SendMessageW(hEdit, WM_SETFONT, reinterpret_cast<WPARAM>(hFont), TRUE);
-        SetFocus(hEdit);
+        SendMessageW(self->m_hEdit, WM_SETFONT, reinterpret_cast<WPARAM>(self->m_hFont), TRUE);
+        self->m_origEditProc = reinterpret_cast<WNDPROC>(
+            SetWindowLongPtrW(self->m_hEdit, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(EditWndProc))
+        );
+        SetFocus(self->m_hEdit);
 
         return 0;
     }
@@ -122,6 +139,10 @@ LRESULT CALLBACK CheatSheetDialog::WndProc(HWND hwnd, UINT msg, WPARAM wParam, L
         case WM_DESTROY: {
             if (self) {
                 HWND target = self->m_hTargetApp;
+                if (self->m_hFont) {
+                    DeleteObject(self->m_hFont);
+                    self->m_hFont = nullptr;
+                }
                 delete self;
                 s_instance = nullptr;
                 if (target && IsWindow(target)) {

@@ -165,8 +165,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 
     state.hwndHost = CreateWindowExW(
         0, minglish::HOST_WINDOW_CLASS, L"ModernISM Host",
-        0, 0, 0, 0, 0,
-        HWND_MESSAGE, nullptr, hInstance, nullptr
+        WS_POPUP, 0, 0, 0, 0,
+        nullptr, nullptr, hInstance, nullptr
     );
 
     // Initialize OS Hooks
@@ -201,6 +201,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
     UnregisterHotKey(state.hwndHost, minglish::HOTKEY_TOGGLE_ID);
     UnregisterHotKey(state.hwndHost, minglish::HOTKEY_FONT_SWITCHER_ID);
     UnregisterHotKey(state.hwndHost, minglish::HOTKEY_CHEAT_SHEET_ID);
+
+    minglish::FontSwitcherDialog::Close();
+    minglish::CheatSheetDialog::Close();
 
     minglish::KeyboardHookManager::Instance().Uninstall();
     minglish::MouseHookManager::Instance().Uninstall();

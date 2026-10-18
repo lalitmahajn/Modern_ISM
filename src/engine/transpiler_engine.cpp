@@ -2,6 +2,27 @@
 
 namespace minglish {
 
+namespace {
+
+std::string Utf16ToUtf8(const std::u16string& u16) {
+    std::string out;
+    for (char16_t c : u16) {
+        if (c < 0x80) {
+            out.push_back(static_cast<char>(c));
+        } else if (c < 0x800) {
+            out.push_back(static_cast<char>(0xC0 | ((c >> 6) & 0x1F)));
+            out.push_back(static_cast<char>(0x80 | (c & 0x3F)));
+        } else {
+            out.push_back(static_cast<char>(0xE0 | ((c >> 12) & 0x0F)));
+            out.push_back(static_cast<char>(0x80 | ((c >> 6) & 0x3F)));
+            out.push_back(static_cast<char>(0x80 | (c & 0x3F)));
+        }
+    }
+    return out;
+}
+
+} // namespace
+
 TranspilerEngine::TranspilerEngine()
     : m_profile(GetDefaultUnicodeProfile()) {}
 
@@ -46,7 +67,7 @@ InjectionDiffU16 TranspilerEngine::OnCharU16(char c) {
 
     if (m_profile.IsUnicode()) {
         newTargetU16 = unicodeText;
-        m_previouslyInjected = "";
+        m_previouslyInjected = Utf16ToUtf8(unicodeText);
     } else {
         std::string newTargetText = TranspileToTargetFont(unicodeText, m_profile);
         m_previouslyInjected = newTargetText;
@@ -98,7 +119,7 @@ InjectionDiffU16 TranspilerEngine::OnBackspaceU16() {
 
     if (m_profile.IsUnicode()) {
         newTargetU16 = unicodeText;
-        m_previouslyInjected = "";
+        m_previouslyInjected = Utf16ToUtf8(unicodeText);
     } else {
         std::string newTargetText = TranspileToTargetFont(unicodeText, m_profile);
         m_previouslyInjected = newTargetText;

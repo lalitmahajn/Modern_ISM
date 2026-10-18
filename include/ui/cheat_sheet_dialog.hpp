@@ -14,10 +14,14 @@ public:
 
 private:
     static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK EditWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
     HWND m_hwnd = nullptr;
+    HWND m_hEdit = nullptr;
     HWND m_hTargetApp = nullptr;
     HINSTANCE m_hInstance = nullptr;
+    HFONT m_hFont = nullptr;
+    WNDPROC m_origEditProc = nullptr;
 
     static CheatSheetDialog* s_instance;
 };

@@ -35,6 +35,9 @@ target_link_libraries(minglish_core PUBLIC user32 gdi32 shell32)
 
 add_executable(ModernISM WIN32 src/main.cpp)
 target_link_libraries(ModernISM PRIVATE minglish_core)
+if(MINGW)
+    target_link_options(ModernISM PRIVATE -static -static-libgcc -static-libstdc++ -s)
+endif()
 
 enable_testing()
 add_subdirectory(tests)

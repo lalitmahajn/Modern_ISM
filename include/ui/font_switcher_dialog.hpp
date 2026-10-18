@@ -39,6 +39,7 @@ private:
     std::vector<size_t> m_filteredIndices;
     OnSelectCallback m_onSelect;
     WNDPROC m_origEditProc = nullptr;
+    HFONT m_hFont = nullptr;
 
     static FontSwitcherDialog* s_instance;
 };

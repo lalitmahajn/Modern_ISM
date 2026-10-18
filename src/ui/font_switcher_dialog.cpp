@@ -40,14 +40,17 @@ void FontSwitcherDialog::Show(HINSTANCE hInstance,
     s_instance->m_profiles = availableProfiles;
     s_instance->m_onSelect = std::move(onSelect);
 
-    WNDCLASSEXW wc = {sizeof(WNDCLASSEXW)};
-    wc.lpfnWndProc = WndProc;
-    wc.hInstance = hInstance;
-    wc.lpszClassName = FONT_SWITCHER_CLASS;
-    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-    wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
-
-    RegisterClassExW(&wc);
+    static bool s_classRegistered = false;
+    if (!s_classRegistered) {
+        WNDCLASSEXW wc = {sizeof(WNDCLASSEXW)};
+        wc.lpfnWndProc = WndProc;
+        wc.hInstance = hInstance;
+        wc.lpszClassName = FONT_SWITCHER_CLASS;
+        wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+        wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+        RegisterClassExW(&wc);
+        s_classRegistered = true;
+    }
 
     int width = 420;
     int height = 280;
@@ -105,12 +108,7 @@ void FontSwitcherDialog::SelectCurrent() {
         }
     }
 
-    HWND target = m_hTargetApp;
     DestroyWindow(m_hwnd);
-
-    if (target && IsWindow(target)) {
-        SetForegroundWindow(target);
-    }
 }
 
 LRESULT CALLBACK FontSwitcherDialog::EditWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -120,11 +118,7 @@ LRESULT CALLBACK FontSwitcherDialog::EditWndProc(HWND hwnd, UINT msg, WPARAM wPa
                 s_instance->SelectCurrent();
                 return 0;
             } else if (wParam == VK_ESCAPE) {
-                HWND target = s_instance->m_hTargetApp;
                 DestroyWindow(s_instance->m_hwnd);
-                if (target && IsWindow(target)) {
-                    SetForegroundWindow(target);
-                }
                 return 0;
             } else if (wParam == VK_UP || wParam == VK_DOWN) {
                 SendMessageW(s_instance->m_hListBox, msg, wParam, lParam);
@@ -142,7 +136,7 @@ LRESULT CALLBACK FontSwitcherDialog::WndProc(HWND hwnd, UINT msg, WPARAM wParam,
         auto* self = reinterpret_cast<FontSwitcherDialog*>(cs->lpCreateParams);
         SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(self));
 
-        HFONT hFont = CreateFontW(
+        self->m_hFont = CreateFontW(
             -14, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
             DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
             CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI"
@@ -156,7 +150,7 @@ LRESULT CALLBACK FontSwitcherDialog::WndProc(HWND hwnd, UINT msg, WPARAM wParam,
             hwnd, reinterpret_cast<HMENU>(IDC_SEARCH_EDIT),
             self->m_hInstance, nullptr
         );
-        SendMessageW(self->m_hEdit, WM_SETFONT, reinterpret_cast<WPARAM>(hFont), TRUE);
+        SendMessageW(self->m_hEdit, WM_SETFONT, reinterpret_cast<WPARAM>(self->m_hFont), TRUE);
 
         // Subclass Edit box to intercept Enter, Esc, Up, Down
         self->m_origEditProc = reinterpret_cast<WNDPROC>(
@@ -171,7 +165,7 @@ LRESULT CALLBACK FontSwitcherDialog::WndProc(HWND hwnd, UINT msg, WPARAM wParam,
             hwnd, reinterpret_cast<HMENU>(IDC_PROFILE_LIST),
             self->m_hInstance, nullptr
         );
-        SendMessageW(self->m_hListBox, WM_SETFONT, reinterpret_cast<WPARAM>(hFont), TRUE);
+        SendMessageW(self->m_hListBox, WM_SETFONT, reinterpret_cast<WPARAM>(self->m_hFont), TRUE);
 
         // Populate initially
         self->FilterProfiles(L"");
@@ -200,6 +194,10 @@ LRESULT CALLBACK FontSwitcherDialog::WndProc(HWND hwnd, UINT msg, WPARAM wParam,
         case WM_DESTROY: {
             if (self) {
                 HWND target = self->m_hTargetApp;
+                if (self->m_hFont) {
+                    DeleteObject(self->m_hFont);
+                    self->m_hFont = nullptr;
+                }
                 delete self;
                 s_instance = nullptr;
                 if (target && IsWindow(target)) {

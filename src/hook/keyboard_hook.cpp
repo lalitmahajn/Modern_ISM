@@ -147,6 +147,16 @@ LRESULT CALLBACK KeyboardHookManager::LowLevelKeyboardProc(int nCode, WPARAM wPa
         return CallNextHookEx(nullptr, nCode, wParam, lParam);
     }
 
+    // Bypass keystrokes if the foreground window belongs to Modern ISM (e.g. Font Switcher search box or Cheat Sheet)
+    HWND fgWnd = GetForegroundWindow();
+    if (fgWnd) {
+        DWORD fgPid = 0;
+        GetWindowThreadProcessId(fgWnd, &fgPid);
+        if (fgPid == GetCurrentProcessId()) {
+            return CallNextHookEx(nullptr, nCode, wParam, lParam);
+        }
+    }
+
     bool isKeyUp = (wParam == WM_KEYUP || wParam == WM_SYSKEYUP);
 
     bool ctrlDown = (GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0;
