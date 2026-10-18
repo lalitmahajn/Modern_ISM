@@ -24,6 +24,7 @@ add_library(minglish_core STATIC
     src/engine/transpiler_engine.cpp
     src/engine/text_injector.cpp
     src/hook/keyboard_hook.cpp
+    src/hook/mouse_hook.cpp
 )
 target_include_directories(minglish_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(minglish_core PUBLIC user32)

@@ -8,6 +8,7 @@ add_executable(minglish_tests
     test_transpiler_engine.cpp
     test_text_injector.cpp
     test_keyboard_hook.cpp
+    test_mouse_hook.cpp
 )
 
 target_include_directories(minglish_tests PRIVATE
