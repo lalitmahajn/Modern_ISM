@@ -15,7 +15,9 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Empty core library initially (sources added in subsequent tasks)
-add_library(minglish_core STATIC src/dummy.cpp)
+add_library(minglish_core STATIC
+    src/engine/minglish_keymap.cpp
+)
 target_include_directories(minglish_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 enable_testing()

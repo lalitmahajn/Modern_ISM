@@ -1,5 +1,6 @@
 add_executable(minglish_tests
     test_main.cpp
+    test_minglish_keymap.cpp
 )
 
 target_include_directories(minglish_tests PRIVATE
