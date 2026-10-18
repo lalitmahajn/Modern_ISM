@@ -24,6 +24,40 @@ InjectionDiff TranspilerEngine::OnChar(char c) {
 
     InjectionDiff diff = ComputeDifferential(m_previouslyInjected, newTargetText);
     m_previouslyInjected = newTargetText;
+
+    std::u16string newTargetU16;
+    if (m_profile.IsUnicode()) {
+        newTargetU16 = unicodeText;
+    } else {
+        newTargetU16.reserve(newTargetText.size());
+        for (unsigned char ch : newTargetText) {
+            newTargetU16.push_back(static_cast<char16_t>(ch));
+        }
+    }
+    m_previouslyInjectedU16 = newTargetU16;
+
+    return diff;
+}
+
+InjectionDiffU16 TranspilerEngine::OnCharU16(char c) {
+    m_buffer.PushKey(c);
+    std::u16string unicodeText = m_buffer.ToUnicode();
+    std::u16string newTargetU16;
+
+    if (m_profile.IsUnicode()) {
+        newTargetU16 = unicodeText;
+        m_previouslyInjected = "";
+    } else {
+        std::string newTargetText = TranspileToTargetFont(unicodeText, m_profile);
+        m_previouslyInjected = newTargetText;
+        newTargetU16.reserve(newTargetText.size());
+        for (unsigned char ch : newTargetText) {
+            newTargetU16.push_back(static_cast<char16_t>(ch));
+        }
+    }
+
+    InjectionDiffU16 diff = ComputeDifferentialU16(m_previouslyInjectedU16, newTargetU16);
+    m_previouslyInjectedU16 = newTargetU16;
     return diff;
 }
 
@@ -38,16 +72,59 @@ InjectionDiff TranspilerEngine::OnBackspace() {
 
     InjectionDiff diff = ComputeDifferential(m_previouslyInjected, newTargetText);
     m_previouslyInjected = newTargetText;
+
+    std::u16string newTargetU16;
+    if (m_profile.IsUnicode()) {
+        newTargetU16 = unicodeText;
+    } else {
+        newTargetU16.reserve(newTargetText.size());
+        for (unsigned char ch : newTargetText) {
+            newTargetU16.push_back(static_cast<char16_t>(ch));
+        }
+    }
+    m_previouslyInjectedU16 = newTargetU16;
+
+    return diff;
+}
+
+InjectionDiffU16 TranspilerEngine::OnBackspaceU16() {
+    if (m_buffer.IsEmpty()) {
+        return {0, u""};
+    }
+
+    m_buffer.PopKey();
+    std::u16string unicodeText = m_buffer.ToUnicode();
+    std::u16string newTargetU16;
+
+    if (m_profile.IsUnicode()) {
+        newTargetU16 = unicodeText;
+        m_previouslyInjected = "";
+    } else {
+        std::string newTargetText = TranspileToTargetFont(unicodeText, m_profile);
+        m_previouslyInjected = newTargetText;
+        newTargetU16.reserve(newTargetText.size());
+        for (unsigned char ch : newTargetText) {
+            newTargetU16.push_back(static_cast<char16_t>(ch));
+        }
+    }
+
+    InjectionDiffU16 diff = ComputeDifferentialU16(m_previouslyInjectedU16, newTargetU16);
+    m_previouslyInjectedU16 = newTargetU16;
     return diff;
 }
 
 void TranspilerEngine::Reset() {
     m_buffer.Clear();
     m_previouslyInjected.clear();
+    m_previouslyInjectedU16.clear();
 }
 
 std::string TranspilerEngine::GetPreviouslyInjected() const {
     return m_previouslyInjected;
+}
+
+std::u16string TranspilerEngine::GetPreviouslyInjectedU16() const {
+    return m_previouslyInjectedU16;
 }
 
 std::u16string TranspilerEngine::GetCurrentUnicode() const {

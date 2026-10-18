@@ -17,20 +17,24 @@ public:
 
     // Called on printable character input
     InjectionDiff OnChar(char c);
+    InjectionDiffU16 OnCharU16(char c);
 
     // Called on physical backspace press
     InjectionDiff OnBackspace();
+    InjectionDiffU16 OnBackspaceU16();
 
     // Called on word boundary keys (Space, Enter, Tab, Escape, arrow keys)
     void Reset();
 
     std::string GetPreviouslyInjected() const;
+    std::u16string GetPreviouslyInjectedU16() const;
     std::u16string GetCurrentUnicode() const;
 
 private:
     WordBuffer m_buffer;
     FontProfile m_profile;
     std::string m_previouslyInjected;
+    std::u16string m_previouslyInjectedU16;
 };
 
 } // namespace minglish

@@ -24,6 +24,10 @@ struct FontProfile {
     std::unordered_map<std::u16string, std::string> directMap;
     std::unordered_map<std::u16string, std::string> halfConsonants;
     std::unordered_map<std::u16string, std::string> ligatures;
+
+    bool IsUnicode() const {
+        return encoding == "unicode" || encoding == "UTF-8" || encoding == "utf-8";
+    }
 };
 
 FontProfile LoadFontProfileFromJson(std::string_view jsonContent);
