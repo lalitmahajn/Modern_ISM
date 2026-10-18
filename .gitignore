@@ -1,0 +1,14 @@
+# Build directories
+build/
+bin/
+lib/
+out/
+
+# Superpowers and SDD
+.superpowers/
+
+# IDE files
+.vscode/
+.vs/
+*.user
+*.suo
