@@ -26,7 +26,9 @@ struct FontProfile {
     std::unordered_map<std::u16string, std::string> ligatures;
 
     bool IsUnicode() const {
-        return encoding == "unicode" || encoding == "UTF-8" || encoding == "utf-8";
+        return encoding == "unicode" || encoding == "utf16" || encoding == "utf-16" ||
+               encoding == "UTF-16" || encoding == "UTF-8" || encoding == "utf8" ||
+               encoding == "utf-8" || id == "unicode_devanagari";
     }
 };
 

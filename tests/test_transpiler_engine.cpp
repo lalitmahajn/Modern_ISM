@@ -98,3 +98,31 @@ TEST_CASE(TestTranspilerEndToEndUnicode) {
 
     return true;
 }
+
+TEST_CASE(TestUnicodeOnCharU16Integrity) {
+    auto unicode = minglish::GetDefaultUnicodeProfile();
+    ASSERT_TRUE(unicode.IsUnicode());
+
+    minglish::TranspilerEngine engine(unicode);
+
+    // Type 'k' -> must inject u"क" (U+0915), NOT UTF-8 raw byte expansion (0xE0 0xA4 0x95)!
+    auto d1 = engine.OnCharU16('k');
+    ASSERT_EQ(d1.backspaceCount, 0);
+    ASSERT_EQ(d1.textToInject, u"क");
+    ASSERT_EQ(d1.textToInject.size(), static_cast<size_t>(1));
+    ASSERT_EQ(static_cast<int>(d1.textToInject[0]), 0x0915);
+
+    // Type 'h' -> upgrade to u"ख" (U+0916)
+    auto d2 = engine.OnCharU16('h');
+    ASSERT_EQ(d2.backspaceCount, 1);
+    ASSERT_EQ(d2.textToInject, u"ख");
+    ASSERT_EQ(d2.textToInject.size(), static_cast<size_t>(1));
+    ASSERT_EQ(static_cast<int>(d2.textToInject[0]), 0x0916);
+
+    // Type 'a' -> confirms 'ख' (ka/kha inherent vowel model)
+    auto d3 = engine.OnCharU16('a');
+    ASSERT_EQ(d3.backspaceCount, 0);
+    ASSERT_EQ(d3.textToInject, u"");
+
+    return true;
+}
