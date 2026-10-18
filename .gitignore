@@ -12,3 +12,9 @@ out/
 .vs/
 *.user
 *.suo
+
+# Agent harness files
+.agents/
+.claude/
+agent/
+
