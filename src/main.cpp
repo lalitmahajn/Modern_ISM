@@ -7,6 +7,8 @@
 #include "engine/font_profile.hpp"
 #include <vector>
 #include <string>
+#include <filesystem>
+#include <unordered_set>
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -148,12 +150,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
     state.hInstance = hInstance;
     minglish::g_appState = &state;
 
-    // Load available font profiles
+    // Load default Unicode profile and dynamically discover all installed JSON font profiles
     state.profiles.push_back(minglish::GetDefaultUnicodeProfile());
-    try {
-        state.profiles.push_back(minglish::LoadFontProfileFromFile("config/fonts/kruti_dev_010.json"));
-    } catch (...) {
-        // Unicode is always guaranteed
+    std::unordered_set<std::string> loadedIds = {state.profiles[0].id};
+
+    const std::vector<std::string> searchPaths = {"config/fonts", "../config/fonts", "build/config/fonts"};
+    for (const auto& dirPath : searchPaths) {
+        std::error_code ec;
+        if (std::filesystem::exists(dirPath, ec) && std::filesystem::is_directory(dirPath, ec)) {
+            for (const auto& entry : std::filesystem::directory_iterator(dirPath, ec)) {
+                if (entry.is_regular_file(ec) && entry.path().extension() == ".json") {
+                    try {
+                        auto prof = minglish::LoadFontProfileFromFile(entry.path().string());
+                        if (!prof.id.empty() && loadedIds.find(prof.id) == loadedIds.end()) {
+                            state.profiles.push_back(prof);
+                            loadedIds.insert(prof.id);
+                        }
+                    } catch (...) {}
+                }
+            }
+        }
     }
 
     // Register host window class for message pumping
