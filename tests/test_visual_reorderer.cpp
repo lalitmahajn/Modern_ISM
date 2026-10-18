@@ -41,3 +41,36 @@ TEST_CASE(TestUnicodeProfilePassthrough) {
 
     return true;
 }
+
+TEST_CASE(TestKrutiDevLigatures) {
+    auto kruti = minglish::LoadFontProfileFromFile("config/fonts/kruti_dev_010.json");
+
+    // ज्ञान -> Kku (K for ज्ञ, k for ा, u for न)
+    std::string s1 = minglish::TranspileToTargetFont(u"ज्ञान", kruti);
+    ASSERT_EQ(s1, "Kku");
+
+    // क्षण -> {k.k ({k for क्ष, .k for ण)
+    std::string s2 = minglish::TranspileToTargetFont(u"क्षण", kruti);
+    ASSERT_EQ(s2, "{k.k");
+
+    // त्रिशूल -> f='kwy (f= for त्रि, 'kw for शू, y for ल)
+    std::string s3 = minglish::TranspileToTargetFont(u"त्रिशूल", kruti);
+    ASSERT_EQ(s3, "f='kwy");
+
+    return true;
+}
+
+TEST_CASE(TestKrutiDevRakar) {
+    auto kruti = minglish::LoadFontProfileFromFile("config/fonts/kruti_dev_010.json");
+
+    // प्र -> iz (i for प, z for Rakar)
+    std::string s1 = minglish::TranspileToTargetFont(u"प्र", kruti);
+    ASSERT_EQ(s1, "iz");
+
+    // क्रम -> dze (d for क, z for Rakar, e for म)
+    std::string s2 = minglish::TranspileToTargetFont(u"क्रम", kruti);
+    ASSERT_EQ(s2, "dze");
+
+    return true;
+}
+

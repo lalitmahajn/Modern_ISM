@@ -75,3 +75,39 @@ TEST_CASE(TestRephAndJodakshar) {
 
     return true;
 }
+
+TEST_CASE(TestInherentConsonantWithHAndRu) {
+    minglish::WordBuffer buf;
+    // maha -> मह (m + a + h + a), NOT मःअ
+    buf.PushKey('m');
+    buf.PushKey('a');
+    buf.PushKey('h');
+    buf.PushKey('a');
+    ASSERT_EQ(buf.ToUnicode(), u"मह");
+
+    // guru -> गुरु (g + u + r + u), NOT गुऋ
+    buf.Clear();
+    buf.PushKey('g');
+    buf.PushKey('u');
+    buf.PushKey('r');
+    buf.PushKey('u');
+    ASSERT_EQ(buf.ToUnicode(), u"गुरु");
+
+    // Explicit Visarga with H: namaH -> नमः
+    buf.Clear();
+    buf.PushKey('n');
+    buf.PushKey('a');
+    buf.PushKey('m');
+    buf.PushKey('a');
+    buf.PushKey('H');
+    ASSERT_EQ(buf.ToUnicode(), u"नमः");
+
+    // Vocalic R with Ru: Ru -> ऋ
+    buf.Clear();
+    buf.PushKey('R');
+    buf.PushKey('u');
+    ASSERT_EQ(buf.ToUnicode(), u"ऋ");
+
+    return true;
+}
+

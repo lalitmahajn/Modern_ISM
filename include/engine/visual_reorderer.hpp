@@ -8,6 +8,7 @@ namespace minglish {
 struct AksharaCluster {
     std::u16string rawCluster;
     bool hasReph = false;
+    bool hasRakar = false;
     std::vector<std::u16string> halfConsonants;
     std::u16string baseConsonant;
     char16_t matra = 0;

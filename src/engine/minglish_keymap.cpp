@@ -23,7 +23,6 @@ const std::unordered_map<std::string, KeyMapping> g_keymap = {
     {"o",   {u"ओ", u"ो",   KeyCategory::Vowel}},
     {"au",  {u"औ", u"ौ",   KeyCategory::Vowel}},
     {"ou",  {u"औ", u"ौ",   KeyCategory::Vowel}},
-    {"ru",  {u"ऋ", u"ृ",   KeyCategory::Vowel}},
     {"Ru",  {u"ऋ", u"ृ",   KeyCategory::Vowel}},
     {"E",   {u"ॲ", u"ॅ",   KeyCategory::Vowel}},
     {"c",   {u"ॲ", u"ॅ",   KeyCategory::Vowel}},
@@ -32,7 +31,6 @@ const std::unordered_map<std::string, KeyMapping> g_keymap = {
     // Modifiers
     {"M",   {u"अं", u"ं",  KeyCategory::Modifier}},
     {"H",   {u"अः", u"ः",  KeyCategory::Modifier}},
-    {"ah",  {u"अः", u"ः",  KeyCategory::Modifier}},
 
     // Virama
     {"/",   {u"",   u"्",  KeyCategory::Virama}},

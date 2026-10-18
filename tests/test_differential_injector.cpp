@@ -34,3 +34,26 @@ TEST_CASE(TestDifferentialPrefixMatch) {
 
     return true;
 }
+
+TEST_CASE(TestUnicodeDifferentialIntegrity) {
+    // Upgrading क (U+0915) to ख (U+0916) in Unicode mode:
+    // Must emit exactly 1 backspace and the full character u"ख", NOT raw byte slices!
+    auto diff1 = minglish::ComputeDifferentialU16(u"क", u"ख");
+    ASSERT_EQ(diff1.backspaceCount, 1);
+    ASSERT_EQ(diff1.textToInject, u"ख");
+
+    // Appending matra: क -> कि (U+0915 + U+093F)
+    // Common prefix is u"क". Must emit 0 backspaces and u"ि"
+    auto diff2 = minglish::ComputeDifferentialU16(u"क", u"कि");
+    ASSERT_EQ(diff2.backspaceCount, 0);
+    ASSERT_EQ(diff2.textToInject, u"ि");
+
+    // Erasing matra: कि -> क
+    // Must emit 1 backspace and empty inject string
+    auto diff3 = minglish::ComputeDifferentialU16(u"कि", u"क");
+    ASSERT_EQ(diff3.backspaceCount, 1);
+    ASSERT_EQ(diff3.textToInject, u"");
+
+    return true;
+}
+

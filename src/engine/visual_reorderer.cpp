@@ -6,7 +6,6 @@ namespace minglish {
 namespace {
 
 bool IsDevanagariConsonant(char16_t c) {
-    // Basic Devanagari consonants
     return (c >= 0x0915 && c <= 0x0939) || (c >= 0x0958 && c <= 0x095F);
 }
 
@@ -53,9 +52,26 @@ std::vector<AksharaCluster> ParseAksharas(const std::u16string& text) {
             i += 2; // skip र and virama
         }
 
-        // Parse any half consonants (Consonant + Virama)
+        // Parse any half consonants (Consonant + Virama), but preserve known ligatures & rakar
         while (i < len && IsDevanagariConsonant(text[i]) && (i + 1 < len) && text[i + 1] == 0x094D) {
-            // If there's another consonant after virama, text[i..i+1] is a half consonant
+            if (i + 2 < len) {
+                // Check if this matches a composite ligature:
+                // ज्ञ: ज + ् + ञ (0x091C, 0x094D, 0x091E)
+                // क्ष: क + ् + ष (0x0915, 0x094D, 0x0937)
+                // त्र: त + ् + र (0x0924, 0x094D, 0x0930)
+                // श्र: श + ् + र (0x0936, 0x094D, 0x0930)
+                if ((text[i] == 0x091C && text[i + 2] == 0x091E) ||
+                    (text[i] == 0x0915 && text[i + 2] == 0x0937) ||
+                    (text[i] == 0x0924 && text[i + 2] == 0x0930) ||
+                    (text[i] == 0x0936 && text[i + 2] == 0x0930)) {
+                    break;
+                }
+                // Check if this is a Rakar (consonant + virama + र)
+                if (text[i + 2] == 0x0930) {
+                    break;
+                }
+            }
+
             if (i + 2 < len && IsDevanagariConsonant(text[i + 2])) {
                 std::u16string hc = text.substr(i, 2);
                 cluster.halfConsonants.push_back(hc);
@@ -65,15 +81,28 @@ std::vector<AksharaCluster> ParseAksharas(const std::u16string& text) {
             }
         }
 
-        // Base consonant or independent character
+        // Base consonant, composite ligature, or rakar
         if (i < len) {
-            // Check if current char + next is a composite or virama at word end
-            cluster.baseConsonant.push_back(text[i]);
-            i++;
-            if (i < len && text[i] == 0x094D) {
-                // Halant directly on base consonant at end
+            // Check composite ligatures first:
+            if (i + 2 < len && text[i + 1] == 0x094D &&
+                ((text[i] == 0x091C && text[i + 2] == 0x091E) ||
+                 (text[i] == 0x0915 && text[i + 2] == 0x0937) ||
+                 (text[i] == 0x0924 && text[i + 2] == 0x0930) ||
+                 (text[i] == 0x0936 && text[i + 2] == 0x0930))) {
+                cluster.baseConsonant = text.substr(i, 3);
+                i += 3;
+            } else if (i + 2 < len && text[i + 1] == 0x094D && text[i + 2] == 0x0930) {
+                // Rakar: consonant + virama + र
+                cluster.baseConsonant = text.substr(i, 1);
+                cluster.hasRakar = true;
+                i += 3;
+            } else {
                 cluster.baseConsonant.push_back(text[i]);
                 i++;
+                if (i < len && text[i] == 0x094D) {
+                    cluster.baseConsonant.push_back(text[i]);
+                    i++;
+                }
             }
         }
 
@@ -101,7 +130,6 @@ std::string TranspileToTargetFont(const std::u16string& unicodeWord, const FontP
         return "";
     }
 
-    // Default Unicode profile: pass through canonical UTF-8
     if (profile.id == "unicode_devanagari" || (!profile.features.chhotiEePreBase && !profile.features.rephPostBase)) {
         return Utf16ToUtf8(unicodeWord);
     }
@@ -121,7 +149,6 @@ std::string TranspileToTargetFont(const std::u16string& unicodeWord, const FontP
             if (itHalf != profile.halfConsonants.end()) {
                 result += itHalf->second;
             } else {
-                // Fallback to direct map
                 auto itDirect = profile.directMap.find(hc);
                 if (itDirect != profile.directMap.end()) {
                     result += itDirect->second;
@@ -131,9 +158,8 @@ std::string TranspileToTargetFont(const std::u16string& unicodeWord, const FontP
             }
         }
 
-        // 3. Base Consonant
+        // 3. Base Consonant or Ligature
         if (!cluster.baseConsonant.empty()) {
-            // Check ligatures first
             auto itLig = profile.ligatures.find(cluster.baseConsonant);
             if (itLig != profile.ligatures.end()) {
                 result += itLig->second;
@@ -142,7 +168,6 @@ std::string TranspileToTargetFont(const std::u16string& unicodeWord, const FontP
                 if (itDirect != profile.directMap.end()) {
                     result += itDirect->second;
                 } else {
-                    // Check half consonant map if base has virama
                     auto itHalf = profile.halfConsonants.find(cluster.baseConsonant);
                     if (itHalf != profile.halfConsonants.end()) {
                         result += itHalf->second;
@@ -150,6 +175,11 @@ std::string TranspileToTargetFont(const std::u16string& unicodeWord, const FontP
                         result += Utf16ToUtf8(cluster.baseConsonant);
                     }
                 }
+            }
+
+            // Append Rakar glyph if applicable
+            if (cluster.hasRakar) {
+                result += profile.rakarGlyph;
             }
         }
 
@@ -166,7 +196,7 @@ std::string TranspileToTargetFont(const std::u16string& unicodeWord, const FontP
 
         // 5. Reph (Flying "R") placed post-base and post-matra in legacy fonts
         if (cluster.hasReph && profile.features.rephPostBase) {
-            result += profile.rephGlyph; // e.g. "Z" in Kruti Dev
+            result += profile.rephGlyph;
         }
 
         // 6. Modifiers (Anusvara, Visarga)
