@@ -4,6 +4,7 @@ add_executable(minglish_tests
     test_word_buffer.cpp
     test_font_profile.cpp
     test_visual_reorderer.cpp
+    test_differential_injector.cpp
 )
 
 target_include_directories(minglish_tests PRIVATE

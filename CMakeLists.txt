@@ -20,6 +20,7 @@ add_library(minglish_core STATIC
     src/engine/word_buffer.cpp
     src/engine/font_profile.cpp
     src/engine/visual_reorderer.cpp
+    src/engine/differential_injector.cpp
 )
 target_include_directories(minglish_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
