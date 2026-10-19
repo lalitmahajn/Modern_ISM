@@ -78,7 +78,7 @@ LRESULT CALLBACK HostWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
                 );
             } else if (id == HOTKEY_CHEAT_SHEET_ID) {
                 HWND hTarget = GetForegroundWindow();
-                CheatSheetDialog::Show(g_appState->hInstance, hTarget);
+                CheatSheetDialog::Show(g_appState->hInstance, hTarget, g_appState->profiles[g_appState->activeProfileIndex]);
             }
             return 0;
         }
@@ -107,7 +107,7 @@ LRESULT CALLBACK HostWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
                         SetActiveProfile(index);
                     },
                     []() {
-                        CheatSheetDialog::Show(g_appState->hInstance, GetForegroundWindow());
+                        CheatSheetDialog::Show(g_appState->hInstance, GetForegroundWindow(), g_appState->profiles[g_appState->activeProfileIndex]);
                     },
                     []() {
                         PostQuitMessage(0);

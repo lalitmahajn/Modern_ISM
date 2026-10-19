@@ -1,4 +1,7 @@
 #pragma once
+#include "engine/font_profile.hpp"
+#include <string>
+
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -6,8 +9,11 @@
 
 namespace minglish {
 
+std::wstring GenerateCheatSheetText(const FontProfile& profile);
+
 class CheatSheetDialog {
 public:
+    static void Show(HINSTANCE hInstance, HWND hTargetApp, const FontProfile& activeProfile);
     static void Show(HINSTANCE hInstance, HWND hTargetApp = nullptr);
     static bool IsOpen();
     static void Close();
@@ -22,6 +28,7 @@ private:
     HINSTANCE m_hInstance = nullptr;
     HFONT m_hFont = nullptr;
     WNDPROC m_origEditProc = nullptr;
+    FontProfile m_profile;
 
     static CheatSheetDialog* s_instance;
 };
