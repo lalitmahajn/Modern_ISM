@@ -45,7 +45,9 @@ void TrayIcon::UpdateTooltip(const std::wstring& tooltip) {
 void TrayIcon::ShowContextMenu(const std::vector<std::string>& fontNames,
                              size_t activeFontIndex,
                              bool isEngineOn,
+                             bool isAutoHide,
                              ActionCallback onToggle,
+                             ActionCallback onToggleAutoHide,
                              FontSelectCallback onSelectFont,
                              ActionCallback onShowCheatSheet,
                              ActionCallback onExit) {
@@ -54,6 +56,9 @@ void TrayIcon::ShowContextMenu(const std::vector<std::string>& fontNames,
 
     UINT toggleFlags = MF_STRING | (isEngineOn ? MF_CHECKED : MF_UNCHECKED);
     AppendMenuW(hMenu, toggleFlags, 101, isEngineOn ? L"Minglish: Enabled (Ctrl+Space)" : L"Minglish: Disabled (Ctrl+Space)");
+
+    UINT autoHideFlags = MF_STRING | (isAutoHide ? MF_CHECKED : MF_UNCHECKED);
+    AppendMenuW(hMenu, autoHideFlags, 104, L"Auto-Hide Overlay (2s)");
     AppendMenuW(hMenu, MF_SEPARATOR, 0, nullptr);
 
     HMENU hFontMenu = CreatePopupMenu();
@@ -78,6 +83,8 @@ void TrayIcon::ShowContextMenu(const std::vector<std::string>& fontNames,
 
     if (cmd == 101 && onToggle) {
         onToggle();
+    } else if (cmd == 104 && onToggleAutoHide) {
+        onToggleAutoHide();
     } else if (cmd == 102 && onShowCheatSheet) {
         onShowCheatSheet();
     } else if (cmd == 103 && onExit) {

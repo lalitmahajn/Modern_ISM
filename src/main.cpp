@@ -94,9 +94,14 @@ LRESULT CALLBACK HostWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
                     fontNames,
                     g_appState->activeProfileIndex,
                     KeyboardHookManager::Instance().IsEngineEnabled(),
+                    g_appState->statusPill.IsAutoHide(),
                     []() {
                         KeyboardHookManager::Instance().ToggleEngine();
                         UpdateUI();
+                    },
+                    []() {
+                        bool current = g_appState->statusPill.IsAutoHide();
+                        g_appState->statusPill.SetAutoHide(!current);
                     },
                     [](size_t index) {
                         SetActiveProfile(index);

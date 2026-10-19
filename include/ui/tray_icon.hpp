@@ -26,7 +26,9 @@ public:
     void ShowContextMenu(const std::vector<std::string>& fontNames,
                          size_t activeFontIndex,
                          bool isEngineOn,
+                         bool isAutoHide,
                          ActionCallback onToggle,
+                         ActionCallback onToggleAutoHide,
                          FontSelectCallback onSelectFont,
                          ActionCallback onShowCheatSheet,
                          ActionCallback onExit);
